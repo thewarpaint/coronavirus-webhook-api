@@ -1,5 +1,8 @@
+const fs = require('fs');
 const puppeteer = require('puppeteer');
 const { WebClient } = require('@slack/web-api');
+
+const oldStatistics = require('./old-statistics.json');
 
 const { SLACK_TOKEN } = process.env;
 
@@ -17,22 +20,66 @@ const webClient = new WebClient(SLACK_TOKEN);
 
   await page.waitForSelector('.drawer-inner');
 
+  const statistics = await getStatistics(page);
+
+  if (await didStatisticsChange(oldStatistics, statistics)) {
+    const {
+      totalCases,
+      deaths,
+      fatalityRate,
+      recoveries
+    } = statistics;
+
+    const message = `Total cases: ${totalCases}\n` +
+      `Deaths: ${deaths}\n` +
+      `Fatality rate: ${fatalityRate}\n` +
+      `Recoveries: ${recoveries}\n` +
+      sourceUrl;
+
+    console.log(message);
+
+    await sendSlackMessage(message);
+
+    fs.writeFileSync('./old-statistics.json', JSON.stringify(statistics));
+  } else {
+    console.info('Nothing changed!');
+  }
+
+  await browser.close();
+})();
+
+async function getStatistics(page) {
   const totalCases = await getNumberFromSelector(page, '.section-el .section-el-number');
   const deaths = await getNumberFromSelector(page, '.section-el:nth-child(5) .section-el-number');
   const fatalityRate = await getNumberFromSelector(page, '.section-el:nth-child(10) .section-el-number');
   const recoveries = await getNumberFromSelector(page, '.section-el:nth-child(6) .section-el-number');
 
-  const message = `Total cases: ${totalCases}\n` +
-    `Deaths: ${deaths}\n` +
-    `Fatality rate: ${fatalityRate}\n` +
-    `Recoveries: ${recoveries}\n` +
-    sourceUrl;
+  return {
+    totalCases,
+    deaths,
+    fatalityRate,
+    recoveries
+  };
+}
 
-  console.log(message);
+async function didStatisticsChange(oldStatistics, newStatistics) {
+  const properties = [
+    'totalCases',
+    'deaths',
+    'fatalityRate',
+    'recoveries'
+  ];
 
-  await sendSlackMessage(message);
-  await browser.close();
-})();
+  for (let property of properties) {
+    console.log(`Comparing prop ${property}, ${oldStatistics[property]} vs ${newStatistics[property]}`);
+
+    if (oldStatistics[property] !== newStatistics[property]) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 async function getNumberFromSelector(page, selector) {
   const element = await page.$(selector);
