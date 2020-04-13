@@ -1,0 +1,25 @@
+{
+  "name": "coronavirus-webhook-api",
+  "version": "1.0.0",
+  "description": "Coronavirus webhook API",
+  "main": "crawler.js",
+  "dependencies": {
+    "@slack/web-api": "5.8.0",
+    "puppeteer": "2.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thewarpaint/coronavirus-webhook-api.git"
+  },
+  "keywords": [
+    "coronavirus"
+  ],
+  "author": "Eduardo Garcia",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/thewarpaint/coronavirus-webhook-api/issues"
+  },
+  "homepage": "https://github.com/thewarpaint/coronavirus-webhook-api#readme"
+}
