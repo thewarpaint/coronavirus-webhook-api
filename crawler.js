@@ -4,7 +4,10 @@ const { WebClient } = require('@slack/web-api');
 
 const oldStatistics = require('./old-statistics.json');
 
-const { SLACK_TOKEN } = process.env;
+const {
+  DEBUG,
+  SLACK_TOKEN,
+} = process.env;
 
 const sourceUrl = 'https://coronavirus.app/tracking/mexico';
 const conversationId = 'CUW14R946';
@@ -37,13 +40,13 @@ const webClient = new WebClient(SLACK_TOKEN);
       `Recoveries: ${recoveries}\n` +
       sourceUrl;
 
-    console.log(message);
+    debug(message);
 
     await sendSlackMessage(message);
 
     fs.writeFileSync('./old-statistics.json', JSON.stringify(statistics));
   } else {
-    console.info('Nothing changed!');
+    debug('Nothing changed!');
   }
 
   await browser.close();
@@ -72,7 +75,7 @@ async function didStatisticsChange(oldStatistics, newStatistics) {
   ];
 
   for (let property of properties) {
-    console.log(`Comparing prop ${property}, ${oldStatistics[property]} vs ${newStatistics[property]}`);
+    debug(`Comparing prop ${property}, ${oldStatistics[property]} vs ${newStatistics[property]}`);
 
     if (oldStatistics[property] !== newStatistics[property]) {
       return true;
@@ -92,5 +95,11 @@ async function sendSlackMessage(message) {
   // See: https://api.slack.com/methods/chat.postMessage
   const result = await webClient.chat.postMessage({ channel: conversationId, text: message });
 
-  console.log('Message sent:', result);
+  debug('Message sent:', result);
+}
+
+function debug(...args) {
+  if (DEBUG) {
+    console.debug.apply(null, args);
+  }
 }
