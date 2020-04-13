@@ -30,7 +30,8 @@ const webClient = new WebClient(SLACK_TOKEN);
       recoveries
     } = statistics;
 
-    const message = `Total cases: ${totalCases}\n` +
+    const message = '🇲🇽\n' +
+      `Total cases: ${totalCases}\n` +
       `Deaths: ${deaths}\n` +
       `Fatality rate: ${fatalityRate}\n` +
       `Recoveries: ${recoveries}\n` +
