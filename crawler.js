@@ -13,6 +13,13 @@ const sourceUrl = 'https://coronavirus.app/tracking/mexico';
 const conversationId = 'CUW14R946';
 const webClient = new WebClient(SLACK_TOKEN);
 
+const statisticProperties = [
+  'totalCases',
+  'deaths',
+  'fatalityRate',
+  'recoveries'
+];
+
 (async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -67,14 +74,7 @@ async function getStatistics(page) {
 }
 
 async function didStatisticsChange(oldStatistics, newStatistics) {
-  const properties = [
-    'totalCases',
-    'deaths',
-    'fatalityRate',
-    'recoveries'
-  ];
-
-  for (let property of properties) {
+  for (let property of statisticProperties) {
     debug(`Comparing prop ${property}, ${oldStatistics[property]} vs ${newStatistics[property]}`);
 
     if (oldStatistics[property] !== newStatistics[property]) {
