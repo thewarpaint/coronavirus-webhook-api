@@ -20,7 +20,12 @@ const statisticProperties = [
   'recoveries'
 ];
 
-(async () => {
+main()
+  .catch((e) => {
+    debug(`Error updating status: ${e.message} ${e.stack}`);
+  });
+
+async function main() {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
@@ -42,7 +47,7 @@ const statisticProperties = [
   }
 
   await browser.close();
-})();
+}
 
 async function getStatistics(page) {
   const totalCases = await getNumberFromSelector(page, '.section-el .section-el-number');
