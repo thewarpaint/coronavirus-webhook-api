@@ -50,8 +50,7 @@ const statisticProperties = [
     debug(message);
 
     await sendSlackMessage(message);
-
-    fs.writeFileSync('./old-statistics.json', JSON.stringify(statistics));
+    updateStatistics(newStatistics);
   } else {
     debug('Nothing changed!');
   }
@@ -83,6 +82,10 @@ async function didStatisticsChange(oldStatistics, newStatistics) {
   }
 
   return false;
+}
+
+function updateStatistics(statistics) {
+  fs.writeFileSync('./old-statistics.json', JSON.stringify(statistics));
 }
 
 async function getNumberFromSelector(page, selector) {
