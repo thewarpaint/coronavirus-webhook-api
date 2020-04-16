@@ -2,5 +2,9 @@
   "mx": {
     "flag": "🇲🇽",
     "sourceUrl": "https://coronavirus.app/tracking/mexico"
+  },
+  "us": {
+    "flag": "🇺🇸",
+    "sourceUrl": "https://coronavirus.app/tracking/united-states"
   }
 }
