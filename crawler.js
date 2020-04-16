@@ -11,6 +11,7 @@ const {
 
 const conversationId = 'CUW14R946';
 const webClient = new WebClient(SLACK_TOKEN);
+const numberFormat = new Intl.NumberFormat('es-MX');
 
 const statisticProperties = [
   'totalCases',
@@ -126,10 +127,10 @@ function getMessage(oldStatistics, newStatistics) {
     recoveriesDelta
   } = getStatisticsDelta(oldStatistics, newStatistics);
 
-  const message = `Total cases: ${totalCases} ${getDeltaText(totalCasesDelta)}\n` +
-    `Deaths: ${deaths} ${getDeltaText(deathsDelta)}\n` +
-    `Fatality rate: ${fatalityRate}% ${getDeltaText(fatalityRateDelta, true)}\n` +
-    `Recoveries: ${recoveries} ${getDeltaText(recoveriesDelta)}\n`;
+  const message = `Total cases: ${format(totalCases)} ${getDeltaText(totalCasesDelta)}\n` +
+    `Deaths: ${format(deaths)} ${getDeltaText(deathsDelta)}\n` +
+    `Fatality rate: ${format(fatalityRate)}% ${getDeltaText(fatalityRateDelta, true)}\n` +
+    `Recoveries: ${format(recoveries)} ${getDeltaText(recoveriesDelta)}\n`;
 
   return message;
 }
@@ -144,14 +145,18 @@ function getDeltaText(delta, isPercentage = false) {
   if (isPercentage) {
     const roundedDelta = roundFloat(delta);
 
-    return `(${sign}${roundedDelta}%)`;
+    return `(${sign}${format(roundedDelta)}%)`;
   }
 
-  return `(${sign}${delta})`;
+  return `(${sign}${format(delta)})`;
 }
 
 function roundFloat(float) {
   return Math.round(float * 100) / 100;
+}
+
+function format(number) {
+  return numberFormat.format(number);
 }
 
 async function sendSlackMessage(message) {
