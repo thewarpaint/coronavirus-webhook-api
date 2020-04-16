@@ -2,14 +2,13 @@ const fs = require('fs');
 const puppeteer = require('puppeteer');
 const { WebClient } = require('@slack/web-api');
 
-const oldStatistics = require('./old-statistics.json');
+const config = require('./config.json');
 
 const {
   DEBUG,
   SLACK_TOKEN,
 } = process.env;
 
-const sourceUrl = 'https://coronavirus.app/tracking/mexico';
 const conversationId = 'CUW14R946';
 const webClient = new WebClient(SLACK_TOKEN);
 
@@ -29,6 +28,16 @@ async function main() {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
+  const countryCode = 'mx';
+  const {
+    flag: countryFlag,
+    sourceUrl
+  } = config[countryCode];
+
+  // TODO: Read file dinamically instead of using require!
+  const db = require('./db.json');
+  const { statistics: oldStatistics } = db[countryCode];
+
   await page.goto(sourceUrl, {
     waitUntil: 'networkidle0',
   });
@@ -38,10 +47,15 @@ async function main() {
   const newStatistics = await getStatistics(page);
 
   if (await didStatisticsChange(oldStatistics, newStatistics)) {
-    const message = getMessage(oldStatistics, newStatistics);
+    const message =
+      `${countryFlag}\n` +
+      getMessage(oldStatistics, newStatistics) +
+      sourceUrl;
+
+    debug(message);
 
     await sendSlackMessage(message);
-    updateStatistics(newStatistics);
+    updateStatistics(db, countryCode, newStatistics);
   } else {
     debug('Nothing changed!');
   }
@@ -49,7 +63,7 @@ async function main() {
   await browser.close();
 }
 
-async function getStatistics(page) {
+async function getStatistics(page, sourceUrl) {
   const totalCases = await getNumberFromSelector(page, '.section-el .section-el-number');
   const deaths = await getNumberFromSelector(page, '.section-el:nth-child(5) .section-el-number');
   const fatalityRate = await getNumberFromSelector(page, '.section-el:nth-child(10) .section-el-number');
@@ -83,8 +97,11 @@ function getStatisticsDelta(oldStatistics, newStatistics) {
   }, {});
 }
 
-function updateStatistics(statistics) {
-  fs.writeFileSync('./old-statistics.json', JSON.stringify(statistics));
+function updateStatistics(db, countryCode, statistics) {
+  // TODO: Avoid side effects, deep clone object
+  db[countryCode].statistics = statistics;
+
+  fs.writeFileSync('./db.json', JSON.stringify(db, null, 2));
 }
 
 async function getNumberFromSelector(page, selector) {
@@ -108,14 +125,10 @@ function getMessage(oldStatistics, newStatistics) {
     recoveriesDelta
   } = getStatisticsDelta(oldStatistics, newStatistics);
 
-  const message = '🇲🇽\n' +
-    `Total cases: ${totalCases} ${getDeltaText(totalCasesDelta)}\n` +
+  const message = `Total cases: ${totalCases} ${getDeltaText(totalCasesDelta)}\n` +
     `Deaths: ${deaths} ${getDeltaText(deathsDelta)}\n` +
     `Fatality rate: ${fatalityRate}% ${getDeltaText(fatalityRateDelta, true)}\n` +
-    `Recoveries: ${recoveries} ${getDeltaText(recoveriesDelta)}\n` +
-    sourceUrl;
-
-  debug(message);
+    `Recoveries: ${recoveries} ${getDeltaText(recoveriesDelta)}\n`;
 
   return message;
 }
