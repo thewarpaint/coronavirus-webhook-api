@@ -28,36 +28,37 @@ async function main() {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
-  const countryCode = 'mx';
-  const {
-    flag: countryFlag,
-    sourceUrl
-  } = config[countryCode];
+  for (let countryCode in config) {
+    const {
+      flag: countryFlag,
+      sourceUrl
+    } = config[countryCode];
 
-  // TODO: Read file dinamically instead of using require!
-  const db = require('./db.json');
-  const { statistics: oldStatistics } = db[countryCode];
+    // TODO: Read file dinamically instead of using require!
+    const db = require('./db.json');
+    const { statistics: oldStatistics } = db[countryCode];
 
-  await page.goto(sourceUrl, {
-    waitUntil: 'networkidle0',
-  });
+    await page.goto(sourceUrl, {
+      waitUntil: 'networkidle0',
+    });
 
-  await page.waitForSelector('.drawer-inner');
+    await page.waitForSelector('.drawer-inner');
 
-  const newStatistics = await getStatistics(page);
+    const newStatistics = await getStatistics(page);
 
-  if (await didStatisticsChange(oldStatistics, newStatistics)) {
-    const message =
-      `${countryFlag}\n` +
-      getMessage(oldStatistics, newStatistics) +
-      sourceUrl;
+    if (await didStatisticsChange(oldStatistics, newStatistics)) {
+      const message =
+        `${countryFlag}\n` +
+        getMessage(oldStatistics, newStatistics) +
+        sourceUrl;
 
-    debug(message);
+      debug(message);
 
-    await sendSlackMessage(message);
-    updateStatistics(db, countryCode, newStatistics);
-  } else {
-    debug('Nothing changed!');
+      await sendSlackMessage(message);
+      updateStatistics(db, countryCode, newStatistics);
+    } else {
+      debug('Nothing changed!');
+    }
   }
 
   await browser.close();
