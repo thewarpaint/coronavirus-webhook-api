@@ -65,7 +65,7 @@ async function main() {
   await browser.close();
 }
 
-async function getStatistics(page, sourceUrl) {
+async function getStatistics(page) {
   const totalCases = await getNumberFromSelector(page, '.section-el .section-el-number');
   const deaths = await getNumberFromSelector(page, '.section-el:nth-child(5) .section-el-number');
   const fatalityRate = await getNumberFromSelector(page, '.section-el:nth-child(10) .section-el-number');
