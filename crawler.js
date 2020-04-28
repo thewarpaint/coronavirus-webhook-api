@@ -67,9 +67,9 @@ async function main() {
 
 async function getStatistics(page) {
   const totalCases = await getNumberFromSelector(page, '.section-el .section-el-number');
-  const deaths = await getNumberFromSelector(page, '.section-el:nth-child(5) .section-el-number');
-  const fatalityRate = await getNumberFromSelector(page, '.section-el:nth-child(10) .section-el-number');
-  const recoveries = await getNumberFromSelector(page, '.section-el:nth-child(6) .section-el-number');
+  const deaths = await getNumberFromSelector(page, '.section-el:nth-child(2) .section-el-number');
+  const fatalityRate = await getNumberFromSelector(page, '.section-el:nth-child(7) .section-el-number');
+  const recoveries = await getNumberFromSelector(page, '.section-el:nth-child(8) .section-el-number');
 
   return {
     totalCases: sanitizeAndParseInt(totalCases),
