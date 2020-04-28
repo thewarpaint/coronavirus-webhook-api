@@ -167,13 +167,13 @@ async function sendSlackMessage(message) {
 }
 
 function sanitizeAndParseInt(string) {
-  return parseInt(string.replace(/[^\d]/, ''), 10);
+  return parseInt(string.replace(/[^\d]/g, ''), 10);
 }
 
 function sanitizeAndParseFloat(string) {
   const sanitizedString = string
     .replace(',', '.')
-    .replace(/[^\d\.]/, '');
+    .replace(/[^\d\.]/g, '');
 
   return parseFloat(sanitizedString, 10);
 }
