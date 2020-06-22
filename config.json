@@ -1,4 +1,8 @@
 {
+  "de": {
+    "flag": "🇩🇪",
+    "sourceUrl": "https://coronavirus.app/tracking/germany"
+  },
   "mx": {
     "flag": "🇲🇽",
     "sourceUrl": "https://coronavirus.app/tracking/mexico"
